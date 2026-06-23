@@ -1,0 +1,23 @@
+# Environment
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Testing
+.pytest_cache/
+*.db
+
+# Editor / OS
+.DS_Store
+*.log
+.idea/
+.vscode/
+
+# Generated files (keep source SVG, ignore binary renders)
+docs/screenshots/

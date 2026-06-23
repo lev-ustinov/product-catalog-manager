@@ -1,0 +1,2682 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Catalog Manager</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-900: #0f2518;
+    --green-800: #1a3d28;
+    --green-700: #234d33;
+    --green-600: #2e6040;
+    --green-500: #3a7a50;
+    --green-400: #4a9663;
+    --green-200: #a8d5b5;
+    --green-100: #d4ead9;
+    --green-50:  #f0f7f2;
+    --cream-100: #faf8f3;
+    --cream-200: #f4f0e6;
+    --cream-300: #e8e0ce;
+    --amber:     #c47f2a;
+    --amber-bg:  #fdf3df;
+    --red:       #c0392b;
+    --red-bg:    #fdecea;
+    --text-dark: #1a2520;
+    --text-mid:  #3d5245;
+    --text-muted:#7a9485;
+    --border:    #d4e0d8;
+    --sidebar-w: 240px;
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-mono:  'JetBrains Mono', monospace;
+    --font-sans:  'Inter', system-ui, sans-serif;
+    --radius:     6px;
+    --radius-lg:  10px;
+    --shadow:     0 1px 4px rgba(15,37,24,0.08);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--text-dark);
+    background: var(--cream-100);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: var(--sidebar-w);
+    background: var(--green-900);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  #sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--green-800);
+  }
+  #sidebar-logo h1 {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--green-100);
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+  }
+  #sidebar-logo p {
+    font-size: 11px;
+    color: var(--green-400);
+    margin-top: 4px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .nav-section { padding: 16px 0 8px; }
+  .nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--green-500);
+    padding: 0 20px;
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    color: var(--green-200);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    font-size: 13.5px;
+  }
+  .nav-item:hover { background: var(--green-800); color: #fff; }
+  .nav-item.active { background: var(--green-700); color: #fff; }
+  .nav-item .icon { font-size: 16px; opacity: 0.8; }
+
+  /* ── MAIN ── */
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #topbar {
+    background: var(--cream-100);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  #topbar-title {
+    font-family: var(--font-serif);
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--green-900);
+  }
+  #topbar-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-top: 2px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--green-700);
+    color: #fff;
+    border-color: var(--green-700);
+  }
+  .btn-primary:hover { background: var(--green-600); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-mid);
+    border-color: var(--border);
+  }
+  .btn-ghost:hover { background: var(--cream-200); }
+  .btn-danger { background: var(--red-bg); color: var(--red); border-color: #f5c6c0; }
+  .btn-danger:hover { background: #fad4d0; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-icon { padding: 6px; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; cursor: pointer; color: var(--text-muted); display: inline-flex; align-items: center; }
+  .btn-icon:hover { background: var(--cream-200); color: var(--text-dark); }
+
+  #content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+  }
+
+  /* ── PANELS ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  #panel-dashboard, #panel-analytics {
+      width: 100%;
+      position: relative;
+      left: 0;
+      top: 0;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+	  overflow-x: auto;
+  }
+
+  #panel-dashboard .card,
+  #panel-analytics .card {
+      margin-bottom: 0;
+	  width: 100%;
+  }
+
+  #panel-analytics canvas {
+      max-width: 100%;
+      height: auto;
+  }
+
+  /* ── CATALOG: split pane ── */
+  #catalog-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    height: calc(100vh - 130px);
+  }
+  #tree-pane {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow-y: auto;
+    padding: 16px;
+  }
+  #detail-pane {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+  }
+  .tree-node {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-dark);
+    transition: background 0.12s;
+  }
+  .tree-node:hover { background: var(--green-50); }
+  .tree-node.selected { background: var(--green-100); color: var(--green-900); font-weight: 500; }
+  .tree-node .arrow { cursor: pointer; color: var(--text-muted); font-size: 12px; width: 14px; }
+  .tree-children { padding-left: 18px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+  }
+  .card-title {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--green-900);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+  }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: var(--font-mono);
+    background: var(--cream-100);
+  }
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--cream-200);
+    color: var(--text-dark);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--green-50); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+  .badge-green { background: var(--green-100); color: var(--green-700); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber); }
+  .badge-red   { background: var(--red-bg); color: var(--red); }
+  .badge-gray  { background: var(--cream-200); color: var(--text-muted); }
+
+  /* ── FORM ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 500; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--font-mono); }
+  input, select, textarea {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: var(--font-sans);
+    color: var(--text-dark);
+    background: #fff;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--green-400); box-shadow: 0 0 0 3px rgba(58,122,80,0.12); }
+  textarea { resize: vertical; min-height: 72px; }
+  .form-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,37,24,0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(15,37,24,0.2);
+  }
+  .modal-title {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--green-900);
+    margin-bottom: 20px;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+  .empty .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+  .empty p { font-size: 13px; }
+
+  /* ── TOAST ── */
+  #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    padding: 12px 18px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: #fff;
+    box-shadow: var(--shadow);
+    animation: slide-up 0.25s ease;
+    max-width: 320px;
+  }
+  .toast-success { background: var(--green-700); }
+  .toast-error   { background: var(--red); }
+  @keyframes slide-up { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── PRICE / MONO ── */
+  .mono { font-family: var(--font-mono); }
+  .price { font-family: var(--font-mono); color: var(--green-700); font-weight: 500; }
+  .muted { color: var(--text-muted); font-size: 12px; }
+
+  /* ── STATUS BADGES ── */
+  .status-draft    { background: var(--cream-200); color: var(--text-muted); }
+  .status-posted   { background: var(--green-100); color: var(--green-700); }
+  .status-cancelled{ background: var(--red-bg);   color: var(--red); }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .tab { padding: 9px 18px; font-size: 13px; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .tab.active { color: var(--green-700); border-bottom-color: var(--green-700); font-weight: 500; }
+  .tab:hover:not(.active) { color: var(--text-dark); }
+
+  .tag-pill { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-family: var(--font-mono); background: var(--green-50); color: var(--green-700); border: 1px solid var(--green-200); }
+
+  /* responsive grid for stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--cream-100); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .stat-label { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; }
+  .stat-value { font-size: 22px; font-weight: 500; color: var(--green-900); margin-top: 4px; font-family: var(--font-serif); }
+  
+  /* Кнопки админа видны только в режиме администратора */
+  body:not(.admin-mode) .admin-only { display: none !important; }
+  .admin-mode .user-only { display: none !important; }
+
+  input[type=number] { -moz-appearance: textfield; }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-logo">
+    <h1>Product Catalog Manager</h1>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Справочник</div>
+    <div class="nav-item active" data-panel="catalog" onclick="navigate('catalog')">
+      <span class="icon"></span> Каталог
+    </div>
+    <div class="nav-item" data-panel="products-search" onclick="navigate('products-search')">
+      <span class="icon"></span> Поиск изделий
+    </div>
+  </div>
+  <div id="nav-classifiers" class="nav-section" style="display:none">
+    <div class="nav-label">Классификаторы</div>
+    <div class="nav-item" data-panel="enums" onclick="navigate('enums')">
+      <span class="icon"></span> Перечисления
+    </div>
+    <div class="nav-item" data-panel="params" onclick="navigate('params')">
+      <span class="icon"></span> Параметры
+    </div>
+  </div>
+  <div id="nav-operations" class="nav-section" style="display:none">
+    <div class="nav-label">Операции</div>
+    <div class="nav-item" data-panel="xo" onclick="navigate('xo')">
+      <span class="icon"></span> Хоз. операции
+    </div>
+    <div class="nav-item" data-panel="xo-classes" onclick="navigate('xo-classes')">
+      <span class="icon"></span> Классификатор ХО
+    </div>
+  </div>
+  <div id="nav-analytics" class="nav-section" style="display:none">
+    <div class="nav-label">Статистика</div>
+    <div class="nav-item" data-panel="dashboard" onclick="navigate('dashboard')">
+      <span class="icon"></span> Сводка
+    </div>
+    <div class="nav-item" data-panel="analytics" onclick="navigate('analytics')">
+      <span class="icon"></span> Графики
+    </div>
+  </div>
+  <div id="nav-admin" class="nav-section admin-only">
+    <div class="nav-label">Администрирование</div>
+    <div class="nav-item" data-panel="users" onclick="navigate('users')">
+      <span class="icon"></span> Пользователи
+    </div>
+    <div class="nav-item" data-panel="audit" onclick="navigate('audit')">
+      <span class="icon"></span> Аудит
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <div>
+      <div id="topbar-title">Каталог</div>
+      <div id="topbar-sub">Иерархия категорий и изделий</div>
+    </div>
+    <div id="topbar-actions"></div>
+    <div id="auth-buttons">
+        <button id="login-btn" class="btn btn-ghost" onclick="showLoginModal()">Вход</button>
+        <button id="logout-btn" class="btn btn-ghost" style="display:none" onclick="logout()">Выйти</button>
+    </div>
+    <div class="modal-overlay" id="modal-login">
+        <div class="modal">
+            <div class="modal-title">Вход в систему</div>
+            <div class="form-group">
+                <label>Имя пользователя</label>
+                <input type="text" id="login-username" placeholder="username">
+                <label style="margin-top:10px;display:block">Пароль</label>
+                <input type="password" id="login-password" placeholder="password">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="login()">Войти</button>
+                <button class="btn btn-ghost" onclick="closeModal('modal-login')">Отмена</button>
+            </div>
+        </div>
+    </div>
+  </div>
+  <div id="content">
+
+    <!-- ═══════════════ CATALOG ═══════════════ -->
+    <div id="panel-catalog" class="panel active">
+      <div id="catalog-layout">
+        <div id="tree-pane">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;font-family:var(--font-mono)">ДЕРЕВО КАТЕГОРИЙ</div>
+          <div id="tree-root"></div>
+        </div>
+        <div id="detail-pane">
+          <div class="empty" id="detail-empty">
+            <div class="icon"></div>
+            <p>Выберите категорию для просмотра</p>
+          </div>
+          <div id="detail-content" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ PRODUCT SEARCH ═══════════════ -->
+    <div id="panel-products-search" class="panel">
+      <!-- Одна общая карточка для параметрического поиска -->
+      <div class="card">
+        <div class="card-title">Поиск изделий по параметрам</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Категория</label>
+            <select id="search-cat"></select>
+          </div>
+          <div class="form-group">
+            <label>Параметр</label>
+            <select id="search-param"></select>
+          </div>
+          <div class="form-group">
+            <label>Мин. значение</label>
+            <input type="number" id="search-min" placeholder="не ограничено">
+          </div>
+          <div class="form-group">
+            <label>Макс. значение</label>
+            <input type="number" id="search-max" placeholder="не ограничено">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="runProductSearch()">Найти</button>
+          <button class="btn btn-ghost" onclick="clearProductSearch()">Сбросить</button>
+        </div>
+        <!-- Результаты поиска будут появляться прямо здесь -->
+        <div id="search-results" style="margin-top: 16px;"></div>
+      </div>
+
+      <!-- Карточка для текстового поиска (остаётся без изменений) -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-title">Поиск по названию / бренду / описанию</div>
+        <div class="form-group">
+          <label>Категория (та же, что и выше)</label>
+          <select id="text-search-cat"></select>
+        </div>
+        <div class="form-group">
+          <label>Текст</label>
+          <input type="text" id="text-search-query" placeholder="Введите слово или фразу...">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="runTextSearch()">Найти</button>
+          <button class="btn btn-ghost" onclick="clearTextSearch()">Сбросить</button>
+        </div>
+        <div id="text-search-results" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ ENUMS ═══════════════ -->
+    <div id="panel-enums" class="panel">
+      <div style="display:grid;grid-template-columns:280px 1fr;gap:20px;height:calc(100vh - 130px)">
+        <div class="card" style="overflow-y:auto">
+          <div class="card-title" style="font-size:15px">
+            Классы перечислений
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-create-enum-class')">+ Новый</button>
+          </div>
+          <div id="enum-classes-list"></div>
+        </div>
+        <div class="card" style="overflow-y:auto">
+          <div id="enum-class-detail"><div class="empty"><div class="icon"></div><p>Выберите класс</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ PARAMS ═══════════════ -->
+    <div id="panel-params" class="panel">
+      <div class="card">
+        <div class="card-title">
+          Определения параметров
+          <button class="btn btn-primary btn-sm admin-only" onclick="openModal('modal-create-param')">+ Новый параметр</button>
+        </div>
+        <div id="params-table"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ XO ═══════════════ -->
+    <div id="panel-xo" class="panel">
+      <div style="display:flex;gap:12px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+        <select id="xo-filter-class" style="width:220px" onchange="loadXOInstances()">
+          <option value="">Все классы ХО</option>
+        </select>
+        <select id="xo-filter-status" style="width:160px" onchange="loadXOInstances()">
+          <option value="">Все статусы</option>
+          <option value="draft">Черновик</option>
+          <option value="posted">Проведён</option>
+          <option value="cancelled">Отменён</option>
+        </select>
+        <button class="btn btn-primary admin-only" onclick="openModal('modal-create-xo')">+ Создать ХО</button>
+        <button class="btn btn-ghost" onclick="exportXOCSV()">↓ Экспорт CSV</button>
+      </div>
+      <div class="card">
+        <div id="xo-table"></div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Поиск ХО по параметру</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Класс ХО</label><select id="search-xo-class"></select></div>
+          <div class="form-group"><label>Параметр</label><select id="search-xo-param"></select></div>
+          <div class="form-group"><label>Мин. значение (число)</label><input type="number" id="search-xo-min" step="any"></div>
+          <div class="form-group"><label>Макс. значение</label><input type="number" id="search-xo-max" step="any"></div>
+          <div class="form-group"><label>Значение перечисления (ID)</label><input type="number" id="search-xo-enum"></div>
+          <div class="form-group"><label>Статус</label><select id="search-xo-status"><option value="">Любой</option><option value="draft">Черновик</option><option value="posted">Проведён</option><option value="cancelled">Отменён</option></select></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="searchXOByParam()">Найти</button>
+          <button class="btn btn-ghost" onclick="clearXOSearch()">Сбросить</button>
+        </div>
+        <div id="xo-search-results" style="margin-top:16px"></div>
+       </div>
+    </div>
+
+    <!-- ═══════════════ XO CLASSES ═══════════════ -->
+    <div id="panel-xo-classes" class="panel">
+      <div class="card">
+        <div class="card-title">
+          Классификатор хозяйственных операций
+          <button class="btn btn-primary btn-sm admin-only" onclick="openModal('modal-create-xo-class')">+ Новый класс</button>
+        </div>
+        <div id="xo-classes-tree"></div>
+		<div id="xo-class-detail" style="margin-top:24px;"></div>
+      </div>
+    </div>
+	<!-- ══════════════════ DASHBOARD PANEL ══════════════════ -->
+    <div class="panel" id="panel-dashboard">
+      <div class="card">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px">
+          <div class="card" style="text-align:center;padding:24px">
+            <div style="font-size:36px;font-weight:700;color:var(--green-600)" id="dash-categories">—</div>
+            <div style="color:var(--text-muted);margin-top:4px">Категорий</div>
+          </div>
+          <div class="card" style="text-align:center;padding:24px">
+            <div style="font-size:36px;font-weight:700;color:var(--green-600)" id="dash-products">—</div>
+            <div style="color:var(--text-muted);margin-top:4px">Товаров</div>
+          </div>
+          <div class="card" style="text-align:center;padding:24px">
+            <div style="font-size:36px;font-weight:700;color:var(--green-600)" id="dash-params">—</div>
+            <div style="color:var(--text-muted);margin-top:4px">Параметров</div>
+          </div>
+          <div class="card" style="text-align:center;padding:24px">
+            <div style="font-size:36px;font-weight:700;color:var(--green-600)" id="dash-xo">—</div>
+            <div style="color:var(--text-muted);margin-top:4px">Операций ХО</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ ANALYTICS PANEL ══════════════════ -->
+    <div class="panel" id="panel-analytics">
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="card" style="padding:20px">
+            <h3 style="margin-bottom:12px;font-size:14px;color:var(--text-muted)">Товаров по категориям</h3>
+            <canvas id="chart-dist" height="220"></canvas>
+          </div>
+          <div class="card" style="padding:20px">
+            <h3 style="margin-bottom:12px;font-size:14px;color:var(--text-muted)">Средняя цена по категориям</h3>
+            <canvas id="chart-price" height="220"></canvas>
+          </div>
+          <div class="card" style="padding:20px">
+            <h3 style="margin-bottom:12px;font-size:14px;color:var(--text-muted)">Использование параметров</h3>
+            <canvas id="chart-params" height="220"></canvas>
+          </div>
+          <div class="card" style="padding:20px">
+            <h3 style="margin-bottom:12px;font-size:14px;color:var(--text-muted)">Операции ХО по месяцам</h3>
+            <canvas id="chart-xo" height="220"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════ USERS PANEL ══════════════════ -->
+    <div class="panel" id="panel-users">
+      <div style="margin-bottom:12px;display:flex;justify-content:flex-end">
+        <button class="btn btn-primary btn-sm" onclick="openCreateUserModal()">+ Создать пользователя</button>
+      </div>
+      <div class="card" style="overflow:auto">
+        <table class="data-table" id="users-table">
+          <thead><tr><th>ID</th><th>Имя пользователя</th><th>Роль</th><th>Активен</th><th>Создан</th><th></th></tr></thead>
+          <tbody id="users-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════ AUDIT PANEL ══════════════════ -->
+    <div class="panel" id="panel-audit">
+      <div style="margin-bottom:12px;display:flex;gap:8px;align-items:center">
+        <select id="audit-entity-filter" onchange="loadAuditLog()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius)">
+          <option value="">Все типы</option>
+          <option value="product">Товар</option>
+          <option value="category">Категория</option>
+          <option value="xo_instance">ХО</option>
+          <option value="user">Пользователь</option>
+        </select>
+        <select id="audit-action-filter" onchange="loadAuditLog()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius)">
+          <option value="">Все действия</option>
+          <option value="create">Создание</option>
+          <option value="update">Изменение</option>
+          <option value="delete">Удаление</option>
+          <option value="post">Проведение</option>
+          <option value="cancel">Отмена</option>
+        </select>
+      </div>
+      <div class="card" style="overflow:auto">
+        <table class="data-table">
+          <thead><tr><th>Время</th><th>Пользователь</th><th>Действие</th><th>Тип</th><th>ID</th><th>Детали</th></tr></thead>
+          <tbody id="audit-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ MODALS ══════════════════ -->
+
+<!-- Category -->
+<div class="modal-overlay" id="modal-create-category">
+  <div class="modal">
+    <div class="modal-title" id="cat-modal-title">Новая категория</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Название</label><input id="cat-name" placeholder="Название категории"></div>
+      <div class="form-group full"><label>Единица упаковки</label><input id="cat-unit" placeholder="грамм, шт, кг…"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveCategory()">Сохранить</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-create-category')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product -->
+<div class="modal-overlay" id="modal-create-product">
+  <div class="modal">
+    <div class="modal-title" id="prod-modal-title">Новое изделие</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Название</label><input id="prod-name" placeholder="Название изделия"></div>
+      <div class="form-group"><label>Цена (руб.)</label><input id="prod-price" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="form-group"><label>Бренд</label><input id="prod-brand" placeholder="Производитель"></div>
+      <div class="form-group full"><label>Описание</label><textarea id="prod-desc" placeholder="Описание…"></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveProduct()">Сохранить</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-create-product')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- Enum class -->
+<div class="modal-overlay" id="modal-create-enum-class">
+  <div class="modal">
+    <div class="modal-title">Новый класс перечисления</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Название</label><input id="ec-name" placeholder="Тип изделия, Сезон…"></div>
+      <div class="form-group full"><label>Описание</label><textarea id="ec-desc" placeholder="Описание…"></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveEnumClass()">Создать</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-create-enum-class')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- Enum value -->
+<div class="modal-overlay" id="modal-add-enum-value">
+  <div class="modal">
+    <div class="modal-title">Добавить значение</div>
+    <div class="form-group"><label>Значение</label><input id="ev-value" placeholder="Значение…"></div>
+    <div class="form-actions" style="margin-top:12px">
+      <button class="btn btn-primary" onclick="saveEnumValue()">Добавить</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-enum-value')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- Param -->
+<div class="modal-overlay" id="modal-create-param">
+  <div class="modal">
+    <div class="modal-title">Новый параметр</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Название</label><input id="param-name" placeholder="Ширина, Материал…"></div>
+      <div class="form-group full"><label>Описание</label><textarea id="param-desc" placeholder="Описание…"></textarea></div>
+      <div class="form-group">
+        <label>Тип</label>
+        <select id="param-type" onchange="toggleParamFields()">
+          <option value="numeric">Числовой</option>
+          <option value="enum">Перечисление</option>
+        </select>
+      </div>
+      <div class="form-group" id="param-unit-grp"><label>Единица изм.</label><input id="param-unit" placeholder="мм, кг, °C…"></div>
+      <div class="form-group" id="param-min-grp"><label>Мин. значение</label><input id="param-min" type="number"></div>
+      <div class="form-group" id="param-max-grp"><label>Макс. значение</label><input id="param-max" type="number"></div>
+      <div class="form-group full" id="param-enum-grp" style="display:none">
+        <label>Класс перечисления</label>
+        <select id="param-enum-class"></select>
+      </div>
+      <div class="form-group">
+        <label>Обязательный</label>
+        <select id="param-required">
+          <option value="false">Нет</option>
+          <option value="true">Да</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveParam()">Создать</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-create-param')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- XO Instance -->
+<div class="modal-overlay" id="modal-create-xo">
+  <div class="modal">
+    <div class="modal-title">Новая хоз. операция</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Класс ХО</label><select id="xo-class-sel"></select></div>
+      <div class="form-group"><label>Номер</label><input id="xo-number" placeholder="ТН-2024-0001"></div>
+      <div class="form-group"><label>Дата</label><input id="xo-date" type="date"></div>
+      <div class="form-group full"><label>Примечания</label><textarea id="xo-notes" placeholder="…"></textarea></div>
+      <div class="form-group full"><label>Создал</label><input id="xo-by" placeholder="operator1"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveXOInstance()">Создать</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-create-xo')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- XO Class -->
+<div class="modal-overlay" id="modal-create-xo-class">
+  <div class="modal">
+    <div class="modal-title">Новый класс ХО</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Название</label><input id="xoc-name" placeholder="Отгрузка товара…"></div>
+      <div class="form-group full"><label>Описание</label><textarea id="xoc-desc"></textarea></div>
+      <div class="form-group full"><label>Родительский класс</label><select id="xoc-parent"><option value="">— корневой —</option></select></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveXOClass()">Создать</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-create-xo-class')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- XO Detail modal -->
+<div class="modal-overlay" id="modal-xo-detail">
+  <div class="modal" style="width:720px">
+    <div class="modal-title" id="xo-detail-title">Операция</div>
+    <div id="xo-detail-content"></div>
+    <div class="form-actions" style="margin-top:16px">
+      <button class="btn btn-primary admin-only" id="xo-edit-params-btn" style="display:none" onclick="enableEditXO()">Редактировать</button>
+      <button class="btn btn-primary admin-only" id="xo-post-btn" onclick="postXO()">Провести</button>
+      <button class="btn btn-danger admin-only" id="xo-cancel-btn" onclick="cancelXO()">Отменить</button>
+      <button class="btn btn-danger admin-only" id="xo-delete-btn" onclick="deleteXO()" style="display:none">Удалить</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-xo-detail')">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно для редактирования параметра товара -->
+<div class="modal-overlay" id="modal-edit-param">
+  <div class="modal">
+    <div class="modal-title" id="param-modal-title">Значение параметра</div>
+    <div class="form-group">
+      <label id="param-modal-label"></label>
+      <input type="text" id="param-value-input" style="display:none" placeholder="Введите значение">
+      <select id="param-enum-select" style="display:none"></select>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveProductParam()">Сохранить</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-param')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- Create user modal -->
+<div class="modal-overlay" id="modal-create-user">
+  <div class="modal">
+    <div class="modal-title" id="user-modal-title">Создать пользователя</div>
+    <input type="hidden" id="user-edit-id">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Имя пользователя</label>
+        <input type="text" id="user-username" placeholder="username">
+      </div>
+      <div class="form-group full">
+        <label>Пароль</label>
+        <input type="password" id="user-password" placeholder="password">
+      </div>
+      <div class="form-group full">
+        <label>Роль</label>
+        <select id="user-role">
+          <option value="user">user</option>
+          <option value="admin">admin</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveUser()">Сохранить</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-create-user')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+
+
+<div id="toast-container"></div>
+
+<script>
+const API = '';
+let state = {
+  selectedCatId: null,
+  selectedEnumClassId: null,
+  editingCatId: null,
+  editingProdId: null,
+  currentXOId: null,
+  currentProductId: null,
+  allEnumClasses: [],
+  allParams: [],
+  allXOClasses: [],
+};
+
+// ── NAV ──
+const panels = {
+  dashboard: { title: 'Dashboard', sub: 'Сводная статистика системы' },
+  catalog: { title: 'Каталог', sub: 'Иерархия категорий и изделий' },
+  'products-search': { title: 'Поиск изделий', sub: 'Фильтрация по параметрам' },
+  enums: { title: 'Перечисления', sub: 'Управление классами и значениями Enum' },
+  params: { title: 'Параметры', sub: 'Настраиваемые параметры изделий' },
+  xo: { title: 'Хозяйственные операции', sub: 'Журнал операций' },
+  'xo-classes': { title: 'Классификатор ХО', sub: 'Иерархия классов операций' },
+  analytics: { title: 'Аналитика', sub: 'Графики и агрегаты' },
+  users: { title: 'Пользователи', sub: 'Управление учётными записями' },
+  audit: { title: 'История изменений', sub: 'Журнал аудита' },
+};
+function navigate(panel) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  document.querySelector(`.nav-item[data-panel="${panel}"]`).classList.add('active');
+  const info = panels[panel];
+  document.getElementById('topbar-title').textContent = info.title;
+  document.getElementById('topbar-sub').textContent = info.sub;
+  document.getElementById('topbar-actions').innerHTML = '';
+  if (panel === 'catalog') loadTree();
+  if (panel === 'enums') loadEnumClasses();
+  if (panel === 'params') loadParams();
+  if (panel === 'xo') { loadXOClassesForFilter(); loadXOInstances(); loadXOSearchFilters(); }
+  if (panel === 'xo-classes') loadXOClassesTree();
+  if (panel === 'products-search') loadSearchFilters();
+  if (panel === 'dashboard') loadDashboard();
+  if (panel === 'analytics') loadAnalytics();
+  if (panel === 'users') loadUsers();
+  if (panel === 'audit') loadAuditLog();
+}
+
+// ── FETCH HELPERS — see auth-aware definitions below ──
+
+// ── TOAST ──
+function toast(msg, type = 'success') {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+    return c;
+  }).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+}
+
+// ── MODAL ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
+});
+
+// ══════════════════ CATALOG ══════════════════
+async function loadTree() {
+  const root = document.getElementById('tree-root');
+  root.innerHTML = '<div style="color:var(--text-muted);font-size:12px">Загрузка…</div>';
+  try {
+    const data = await get('/api/categories/tree/full');
+    root.innerHTML = '';
+    if (data.children) data.children.forEach(n => root.appendChild(buildTreeNode(n, 0)));
+    else root.innerHTML = '<div class="empty"><p>Категорий нет</p></div>';
+  } catch(e) { root.innerHTML = `<div style="color:var(--red);font-size:12px">${e.message}</div>`; }
+}
+
+function buildTreeNode(node, depth) {
+  const wrap = document.createElement('div');
+  const hasChildren = node.children && node.children.length > 0;
+  let collapsed = false;
+  const row = document.createElement('div');
+  row.className = 'tree-node';
+  row.style.paddingLeft = (depth * 14 + 8) + 'px';
+  const icon = node.type === 'product' ? '' : (hasChildren ? '' : '');
+  row.innerHTML = `
+    <span class="arrow">${hasChildren ? '▾' : ' '}</span>
+    <span>${icon}</span>
+    <span style="flex:1">${node.name}</span>
+    ${node.type === 'product' && node.price ? `<span class="price" style="font-size:11px">${Number(node.price).toFixed(0)}₽</span>` : ''}
+  `;
+  wrap.appendChild(row);
+  if (node.type === 'category') {
+    row.addEventListener('click', () => selectCategory(node.id, node.name));
+  } else {
+    row.addEventListener('click', () => selectProduct(node));
+  }
+  if (hasChildren) {
+    const children = document.createElement('div');
+    children.className = 'tree-children';
+    node.children.forEach(c => children.appendChild(buildTreeNode(c, depth + 1)));
+    wrap.appendChild(children);
+    row.querySelector('.arrow').addEventListener('click', e => {
+      e.stopPropagation();
+      collapsed = !collapsed;
+      children.style.display = collapsed ? 'none' : '';
+      row.querySelector('.arrow').textContent = collapsed ? '▸' : '▾';
+    });
+  }
+  return wrap;
+}
+
+let currentCategoryId = null; // глобальная переменная для текущей категории
+
+async function selectCategory(id, name) {
+  currentCategoryId = id;
+  state.selectedCatId = id;
+  state.editingProdId = null;
+  document.querySelectorAll('.tree-node').forEach(n => n.classList.remove('selected'));
+  document.getElementById('detail-empty').style.display = 'none';
+  document.getElementById('detail-content').style.display = 'flex';
+  document.getElementById('detail-content').style.flexDirection = 'column';
+  
+  // Загружаем информацию о категории
+  let cat;
+  try {
+    cat = await get(`/api/categories/${id}`);
+  } catch(e) { toast(e.message, 'error'); return; }
+  
+  const htmlHeader = `
+    <div class="card">
+      <div class="card-title">
+        <span> ${cat.name}</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm admin-only" onclick="openEditCategory(${id})">Изменить</button>
+          <button class="btn btn-primary btn-sm admin-only" onclick="openAddSubcategory(${id})">+ Подкатегория</button>
+          <button class="btn btn-primary btn-sm admin-only" onclick="openAddProduct(${id})">+ Изделие</button>
+          <button class="btn btn-danger btn-sm admin-only" onclick="deleteCat(${id})">Удалить</button>
+        </div>
+      </div>
+      <table>
+        <tr><td style="color:var(--text-muted);width:140px">ID</td><td class="mono">${cat.id}</td></tr>
+        <tr><td style="color:var(--text-muted)">Упаковка</td><td>${cat.packaging_unit_name || '—'}</td></tr>
+      </table>
+    </div>
+  `;
+  
+  // Вкладки
+  const tabsHtml = `
+    <div class="tabs">
+      <div class="tab active" data-tab="products">Товары</div>
+      <div class="tab" data-tab="category-params">Параметры категории</div>
+    </div>
+    <div id="tab-products" class="tab-content"></div>
+    <div id="tab-category-params" class="tab-content" style="display:none"></div>
+  `;
+  
+  document.getElementById('detail-content').innerHTML = htmlHeader + tabsHtml;
+  
+  // Загружаем товары
+  await loadProductsTab(id);
+  // Загружаем параметры категории
+  await loadCategoryParamsTab(id);
+  
+  // Обработчики вкладок
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
+      document.getElementById(`tab-${tab.dataset.tab}`).style.display = 'block';
+    });
+  });
+}
+
+async function loadProductsTab(categoryId) {
+  const container = document.getElementById('tab-products');
+  try {
+    const products = await get(`/api/categories/${categoryId}/terminal-products`);
+    if (products.length === 0) {
+      container.innerHTML = '<div class="empty"><p>Изделий нет</p></div>';
+      return;
+    }
+    container.innerHTML = `
+      <div class="card">
+        <div class="card-title" style="font-size:15px">Изделия в категории</div>
+        <table>
+          <thead><tr><th>Название</th><th>Цена</th><th>Бренд</th><th></th></tr></thead>
+          <tbody>
+            ${products.map(p => `
+              <tr>
+                <td>${p.product_name}</td>
+                <td class="price">${Number(p.price).toFixed(2)} ₽</td>
+                <td class="muted">${p.brand || '—'}</td>
+                <td><button class="btn-icon admin-only" onclick="deleteProd(${p.product_id})">🗑</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch(e) { container.innerHTML = `<div class="empty">Ошибка: ${e.message}</div>`; }
+}
+
+async function loadCategoryParamsTab(categoryId) {
+  const container = document.getElementById('tab-category-params');
+  container.innerHTML = '<div class="card">Загрузка параметров...</div>';
+  try {
+    // Получаем параметры категории с учётом наследования
+    const params = await get(`/api/params/categories/${categoryId}`);
+    // Получаем список всех параметров для назначения
+    const allParams = await get('/api/params/definitions/');
+    // Фильтруем параметры, которые уже назначены (собственные или унаследованные)
+    const assignedIds = params.map(p => p.param_id);
+    const availableParams = allParams.filter(p => !assignedIds.includes(p.id));
+    
+    const ownParams = params.filter(p => !p.is_inherited);
+    const inheritedParams = params.filter(p => p.is_inherited);
+    
+    let html = `<div class="card"><div class="card-title">Параметры категории</div>`;
+    
+    // Кнопка назначения нового параметра
+    html += `<div style="margin-bottom:16px"><button class="btn btn-primary btn-sm" onclick="showAssignParamModal(${categoryId})">+ Назначить параметр</button></div>`;
+    
+    // Собственные параметры
+    if (ownParams.length) {
+      html += `<div style="font-weight:500;margin:12px 0 8px">Назначенные параметры (можно открепить):</div>`;
+      html += `<table style="width:100%"><thead><tr><th>Параметр</th><th>Тип</th><th>Наследуется</th><th></th></tr></thead><tbody>`;
+      for (let p of ownParams) {
+        html += `
+          <tr>
+            <td>${p.param_name}</td>
+            <td><span class="badge ${p.param_type === 'numeric' ? 'badge-green' : 'badge-amber'}">${p.param_type}</span></td>
+            <td>
+              <label style="display:flex;align-items:center;gap:6px">
+                <input type="checkbox" class="inherit-checkbox" data-cat="${categoryId}" data-param="${p.param_id}" ${p.is_inherited ? 'checked' : ''}>
+                наследуется подкатегориями
+              </label>
+            </td>
+            <td><button class="btn-icon" onclick="removeParamFromCategory(${categoryId}, ${p.param_id})">🗑</button></td>
+          </tr>
+        `;
+      }
+      html += `</tbody></table>`;
+    }
+    
+    // Унаследованные параметры
+    if (inheritedParams.length) {
+      html += `<div style="font-weight:500;margin:20px 0 8px">Унаследованные от предков (нельзя открепить):</div>`;
+      html += `<table style="width:100%"><thead><tr><th>Параметр</th><th>Тип</th><th>Источник</th></tr></thead><tbody>`;
+      for (let p of inheritedParams) {
+        html += `
+          <tr>
+            <td>${p.param_name}</td>
+            <td><span class="badge ${p.param_type === 'numeric' ? 'badge-green' : 'badge-amber'}">${p.param_type}</span></td>
+            <td>${p.source_category_name}</td>
+          </tr>
+        `;
+      }
+      html += `</tbody></table>`;
+    }
+    
+    if (!ownParams.length && !inheritedParams.length) {
+      html += `<div class="muted" style="padding:12px 0">Параметров не назначено. Нажмите «+ Назначить параметр».</div>`;
+    }
+    
+    html += `</div>`;
+    container.innerHTML = html;
+    
+    // Навесить обработчики на чекбоксы is_inherited
+    document.querySelectorAll('.inherit-checkbox').forEach(cb => {
+      cb.addEventListener('change', async (e) => {
+        const catId = parseInt(cb.dataset.cat);
+        const paramId = parseInt(cb.dataset.param);
+        const isInherited = cb.checked;
+        try {
+          await patch(`/api/params/categories/${catId}/${paramId}`, { is_inherited: isInherited });
+          toast(`Параметр ${isInherited ? 'будет' : 'не будет'} наследоваться`);
+          await loadCategoryParamsTab(catId);
+        } catch(e) { toast(e.message, 'error'); cb.checked = !isInherited; }
+      });
+    });
+  } catch(e) { container.innerHTML = `<div class="empty">Ошибка: ${e.message}</div>`; }
+}
+
+async function selectProduct(node) {
+  state.currentProductId = node.id;
+  document.getElementById('detail-empty').style.display = 'none';
+  document.getElementById('detail-content').style.display = 'block';
+  try {
+    const [prod, params] = await Promise.all([
+      get(`/api/products/${node.id}`),
+      get(`/api/params/products/${node.id}`)
+    ]);
+    const html = `
+      <div class="card">
+        <div class="card-title">
+          ${prod.name}
+          <div>
+            <button class="btn btn-primary btn-sm admin-only" onclick="openEditProduct(${prod.id})">Редактировать товар</button>
+            <button class="btn btn-danger btn-sm admin-only" onclick="deleteProd(${prod.id})">Удалить товар</button>
+          </div>
+        </div>
+        <table style="margin-bottom:20px">
+          <tr><td style="color:var(--text-muted);width:140px">ID</td><td class="mono">${prod.id}</td></tr>
+          <tr><td style="color:var(--text-muted)">Цена</td><td class="price">${Number(prod.price).toFixed(2)} ₽</td></tr>
+          <tr><td style="color:var(--text-muted)">Бренд</td><td>${prod.brand || '—'}</td></tr>
+          <tr><td style="color:var(--text-muted)">Описание</td><td>${prod.description || '—'}</td></tr>
+        </table>
+        <div class="card-title" style="font-size:15px">Параметры товара</div>
+        <div id="product-params-list"></div>
+      </div>
+    `;
+    document.getElementById('detail-content').innerHTML = html;
+    const paramsDiv = document.getElementById('product-params-list');
+    if (!params || params.length === 0) {
+      paramsDiv.innerHTML = '<div class="muted">Нет параметров для этой категории</div>';
+    } else {
+      paramsDiv.innerHTML = `
+        <table class="params-table">
+          <thead><tr><th>Параметр</th><th>Значение</th><th>Ед.</th><th></th></tr></thead>
+          <tbody>
+            ${params.map(p => `
+              <tr>
+                <td>${p.param_name}${p.is_required ? ' <span class="badge badge-gray">обяз.</span>' : ''}</td>
+                <td>${p.numeric_value ?? p.enum_value_text ?? '(не задано)'}</td>
+                <td>${p.unit || '—'}</td>
+                <td><button class="btn-icon admin-only" onclick="editParam(${prod.id}, ${p.param_id}, '${p.param_type}')">✏️</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+  } catch(e) {
+    toast(e.message, 'error');
+  }
+}
+
+
+function openAddSubcategory(parentId) {
+  state.editingCatId = null;
+  state.selectedCatId = parentId;
+  document.getElementById('cat-modal-title').textContent = 'Новая подкатегория';
+  document.getElementById('cat-name').value = '';
+  document.getElementById('cat-unit').value = '';
+  openModal('modal-create-category');
+}
+function openEditCategory(id) {
+  state.editingCatId = id;
+  document.getElementById('cat-modal-title').textContent = 'Редактировать категорию';
+  openModal('modal-create-category');
+}
+async function saveCategory() {
+  const name = document.getElementById('cat-name').value.trim();
+  if (!name) return toast('Введите название', 'error');
+  const unit = document.getElementById('cat-unit').value.trim();
+  try {
+    if (state.editingCatId) {
+      await patch(`/api/categories/${state.editingCatId}`, { name, packaging_unit_name: unit || null });
+      toast('Категория обновлена');
+    } else {
+      await post('/api/categories/', { name, Category_id: state.selectedCatId || null, packaging_unit_name: unit || null });
+      toast('Категория создана');
+    }
+    closeModal('modal-create-category');
+    loadTree();
+    if (state.selectedCatId) selectCategory(state.selectedCatId, '');
+  } catch(e) { toast(e.message, 'error'); }
+}
+async function deleteCat(id) {
+  if (!confirm('Удалить категорию?')) return;
+  try { await del(`/api/categories/${id}`); toast('Удалено'); loadTree(); document.getElementById('detail-content').style.display = 'none'; document.getElementById('detail-empty').style.display = 'block'; }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+function openAddProduct(catId) {
+  state.editingProdId = null;
+  state.selectedCatId = catId;
+  document.getElementById('prod-modal-title').textContent = 'Новое изделие';
+  document.getElementById('prod-name').value = '';
+  document.getElementById('prod-price').value = '';
+  document.getElementById('prod-brand').value = '';
+  document.getElementById('prod-desc').value = '';
+  openModal('modal-create-product');
+}
+async function saveProduct() {
+  const name = document.getElementById('prod-name').value.trim();
+  const price = parseFloat(document.getElementById('prod-price').value);
+  if (!name || isNaN(price)) return toast('Заполните название и цену', 'error');
+  const brand = document.getElementById('prod-brand').value.trim();
+  const description = document.getElementById('prod-desc').value.trim();
+
+  try {
+    if (state.editingProdId) {
+      await put(`/api/products/${state.editingProdId}`, {
+        name, price, brand: brand || null,
+        description: description || null
+      });
+      toast('Изделие обновлено');
+    } else {
+      await post('/api/products/', {
+        name, price, brand: brand || null,
+        description: description || null,
+        Category_id: state.selectedCatId
+      });
+      toast('Изделие создано');
+    }
+    closeModal('modal-create-product');
+    loadTree();
+    if (state.editingProdId) {
+      // перезагружаем детали товара
+      selectProduct({ id: state.editingProdId });
+    } else if (state.selectedCatId) {
+      selectCategory(state.selectedCatId, '');
+    }
+    state.editingProdId = null;
+  } catch(e) { toast(e.message, 'error'); }
+}
+async function openEditProduct(id) {
+  state.editingProdId = id;
+  const prod = await get(`/api/products/${id}`);
+  document.getElementById('prod-modal-title').textContent = 'Редактировать изделие';
+  document.getElementById('prod-name').value = prod.name;
+  document.getElementById('prod-price').value = prod.price;
+  document.getElementById('prod-brand').value = prod.brand || '';
+  document.getElementById('prod-desc').value = prod.description || '';
+  openModal('modal-create-product');
+}
+
+async function deleteProd(id) {
+  if (!confirm('Удалить изделие?')) return;
+  try { await del(`/api/products/${id}`); toast('Удалено'); loadTree(); if (state.selectedCatId) selectCategory(state.selectedCatId, ''); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════ PRODUCT SEARCH ══════════════════
+
+async function loadSearchFilters() {
+  try {
+    // Получаем дерево категорий
+    const data = await get('/api/categories/tree/full');
+    // Находим select для параметрического поиска
+    const catSel = document.getElementById('search-cat');
+    // Находим select для текстового поиска (добавьте этот id в HTML, если ещё нет)
+    const textCatSel = document.getElementById('text-search-cat');
+    
+    // Очищаем и добавляем базовую опцию
+    catSel.innerHTML = '<option value="">— выберите категорию —</option>';
+    textCatSel.innerHTML = '<option value="">— выберите категорию —</option>';
+    
+    // Рекурсивная функция для обхода дерева категорий
+    function addCategories(nodes, depth = 0) {
+      for (const node of nodes) {
+        if (node.type === 'category') {
+          const indent = '  '.repeat(depth);
+          const optionText = indent + node.name;
+          const optionValue = node.id;
+          
+          // Добавляем в оба select'а
+          catSel.innerHTML += `<option value="${optionValue}">${optionText}</option>`;
+          textCatSel.innerHTML += `<option value="${optionValue}">${optionText}</option>`;
+          
+          // Рекурсивно обрабатываем дочерние категории
+          if (node.children && node.children.length) {
+            addCategories(node.children, depth + 1);
+          }
+        }
+      }
+    }
+    
+    // Запускаем обход, начиная с корневых категорий (data.children)
+    if (data.children) {
+      addCategories(data.children);
+    }
+    
+    // Загружаем также список параметров для выпадающего списка в параметрическом поиске
+    const params = await get('/api/params/definitions/');
+    const paramSel = document.getElementById('search-param');
+    paramSel.innerHTML = '<option value="">— выберите параметр —</option>';
+    if (Array.isArray(params)) {
+      params.filter(p => p.param_type === 'numeric').forEach(p => {
+        paramSel.innerHTML += `<option value="${p.id}">${p.name}${p.unit ? ' (' + p.unit + ')' : ''}</option>`;
+      });
+    }
+  } catch(e) {
+    console.error(e);
+    toast('Ошибка загрузки фильтров', 'error');
+  }
+}
+
+async function runProductSearch() {
+  const categoryId = document.getElementById('search-cat').value;
+  const paramId = document.getElementById('search-param').value;
+  if (!categoryId || !paramId) {
+    toast('Выберите категорию и параметр', 'error');
+    return;
+  }
+  const numMin = document.getElementById('search-min').value;
+  const numMax = document.getElementById('search-max').value;
+  
+  const body = {
+    category_id: parseInt(categoryId),
+    filters: [
+      {
+        param_id: parseInt(paramId),
+        num_min: numMin ? parseFloat(numMin) : null,
+        num_max: numMax ? parseFloat(numMax) : null
+      }
+    ]
+  };
+  
+  try {
+    const results = await post('/api/params/search/multi', body);
+    const container = document.getElementById('search-results');
+    
+    if (!results || results.length === 0) {
+      container.innerHTML = '<div class="empty"><div class="icon">🔍</div><p>Ничего не найдено</p></div>';
+      return;
+    }
+    
+    // Формируем таблицу, идентичную текстовому поиску
+    container.innerHTML = `
+      <table class="search-results-table" style="width:100%">
+        <thead>
+          <tr><th>Изделие</th><th>Категория</th><th>Цена</th><th>Бренд</th></tr>
+        </thead>
+        <tbody>
+          ${results.map(r => `
+            <tr>
+              <td>${r.product_name}</td>
+              <td>${r.category_name}</td>
+              <td class="price">${Number(r.price).toFixed(2)} ₽</td>
+              <td class="muted">${r.brand || '—'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+}
+
+function clearProductSearch() {
+  document.getElementById('search-cat').selectedIndex = 0;
+  document.getElementById('search-param').selectedIndex = 0;
+  document.getElementById('search-min').value = '';
+  document.getElementById('search-max').value = '';
+  document.getElementById('search-results').innerHTML = '';   // просто очищаем, без placeholder
+}
+
+// ══════════════════ ENUMS ══════════════════
+async function loadEnumClasses() {
+  const list = document.getElementById('enum-classes-list');
+  list.innerHTML = '<div style="color:var(--text-muted);font-size:12px">Загрузка…</div>';
+  try {
+    const data = await get('/api/enums/classes');
+    state.allEnumClasses = data;
+    list.innerHTML = '';
+    if (!data.length) { list.innerHTML = '<div class="empty"><p>Нет перечислений</p></div>'; return; }
+    data.forEach(ec => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:10px 12px;border-radius:6px;cursor:pointer;margin-bottom:4px;border:1px solid transparent;transition:all .15s';
+      item.innerHTML = `<div style="font-weight:500;font-size:13px">${ec.name}</div><div class="muted">${ec.values_count} значений</div>`;
+      item.addEventListener('click', () => { document.querySelectorAll('#enum-classes-list > div').forEach(d => d.style.background = ''); item.style.background = 'var(--green-50)'; item.style.borderColor = 'var(--green-200)'; loadEnumClassDetail(ec.id); });
+      list.appendChild(item);
+    });
+  } catch(e) { list.innerHTML = `<div style="color:var(--red)">${e.message}</div>`; }
+}
+
+async function loadEnumClassDetail(id) {
+  state.selectedEnumClassId = id;
+  const dc = document.getElementById('enum-class-detail');
+  dc.innerHTML = '<div style="color:var(--text-muted);font-size:12px">Загрузка…</div>';
+  try {
+    const data = await get(`/api/enums/classes/${id}`);
+    dc.innerHTML = `
+      <div class="card-title" style="font-size:16px;margin-bottom:16px">
+        <span>${data.name}</span>
+        <button class="btn btn-primary btn-sm admin-only" onclick="openModal('modal-add-enum-value')">+ Значение</button>
+      </div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">${data.description || ''}</p>
+      <table>
+        <thead><tr><th>Значение</th><th>Порядок</th><th></th></tr></thead>
+        <tbody>${data.values.map(v => `
+          <tr>
+            <td>${v.value}</td>
+            <td class="mono">${v.sort_order}</td>
+            <td><button class="btn-icon admin-only" onclick="deleteEnumValue(${v.id})">🗑</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      <div style="margin-top:16px">
+        <button class="btn btn-danger btn-sm admin-only" onclick="deleteEnumClass(${id})">Удалить класс</button>
+      </div>`;
+  } catch(e) { dc.innerHTML = `<div style="color:var(--red)">${e.message}</div>`; }
+}
+
+async function saveEnumClass() {
+  const name = document.getElementById('ec-name').value.trim();
+  if (!name) return toast('Введите название', 'error');
+  const description = document.getElementById('ec-desc').value.trim();
+  try {
+    await post('/api/enums/classes', { name, description: description || null });
+    toast('Класс создан');
+    closeModal('modal-create-enum-class');
+    document.getElementById('ec-name').value = '';
+    document.getElementById('ec-desc').value = '';
+    loadEnumClasses();
+  } catch(e) { toast(e.message, 'error'); }
+}
+async function saveEnumValue() {
+  const value = document.getElementById('ev-value').value.trim();
+  if (!value || !state.selectedEnumClassId) return toast('Введите значение', 'error');
+  try {
+    await post(`/api/enums/classes/${state.selectedEnumClassId}/values`, { value });
+    toast('Значение добавлено');
+    closeModal('modal-add-enum-value');
+    document.getElementById('ev-value').value = '';
+    loadEnumClassDetail(state.selectedEnumClassId);
+  } catch(e) { toast(e.message, 'error'); }
+}
+async function toggleEnumValue(id, isActive) {
+  try { await patch(`/api/enums/values/${id}`, { is_active: !isActive }); loadEnumClassDetail(state.selectedEnumClassId); }
+  catch(e) { toast(e.message, 'error'); }
+}
+async function deleteEnumValue(id) {
+  if (!confirm('Удалить значение?')) return;
+  try { await del(`/api/enums/values/${id}`); toast('Удалено'); loadEnumClassDetail(state.selectedEnumClassId); }
+  catch(e) { toast(e.message, 'error'); }
+}
+async function deleteEnumClass(id) {
+  if (!confirm('Удалить класс и все его значения?')) return;
+  try { await del(`/api/enums/classes/${id}`); toast('Удалено'); loadEnumClasses(); document.getElementById('enum-class-detail').innerHTML = '<div class="empty"><div class="icon">🏷</div><p>Выберите класс</p></div>'; }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════ PARAMS ══════════════════
+async function loadParams() {
+  const div = document.getElementById('params-table');
+  div.innerHTML = '<div style="color:var(--text-muted);font-size:12px">Загрузка…</div>';
+  try {
+    const data = await get('/api/params/definitions/');
+    state.allParams = data || [];
+    if (!data || !data.length) { div.innerHTML = '<div class="empty"><p>Параметров нет</p></div>'; return; }
+    div.innerHTML = `<table>
+      <thead><tr><th>Название</th><th>Тип</th><th>Единица</th><th>Мин.</th><th>Макс.</th><th>Обязателен</th><th></th></tr></thead>
+      <tbody>${data.map(p => `
+        <tr>
+          <td><strong>${p.name}</strong>${p.description ? `<div class="muted">${p.description}</div>` : ''}</td>
+          <td><span class="badge ${p.param_type === 'numeric' ? 'badge-green' : 'badge-amber'}">${p.param_type}</span></td>
+          <td class="mono">${p.unit || '—'}</td>
+          <td class="mono">${p.min_value ?? '—'}</td>
+          <td class="mono">${p.max_value ?? '—'}</td>
+          <td>${p.is_required ? '✓' : '—'}</td>
+          <td><button class="btn-icon admin-only" onclick="deleteParam(${p.id})">🗑</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  } catch(e) { div.innerHTML = `<div style="color:var(--red)">${e.message}</div>`; }
+}
+
+function toggleParamFields() {
+  const t = document.getElementById('param-type').value;
+  ['param-unit-grp','param-min-grp','param-max-grp'].forEach(id => document.getElementById(id).style.display = t === 'numeric' ? '' : 'none');
+  document.getElementById('param-enum-grp').style.display = t === 'enum' ? '' : 'none';
+  if (t === 'enum') {
+    const sel = document.getElementById('param-enum-class');
+    sel.innerHTML = state.allEnumClasses.map(ec => `<option value="${ec.id}">${ec.name}</option>`).join('');
+  }
+}
+
+async function saveParam() {
+  const name = document.getElementById('param-name').value.trim();
+  if (!name) return toast('Введите название', 'error');
+  const type = document.getElementById('param-type').value;
+  const body = { name, description: document.getElementById('param-desc').value.trim() || null, param_type: type, is_required: document.getElementById('param-required').value === 'true' };
+  if (type === 'numeric') {
+    body.unit = document.getElementById('param-unit').value.trim() || null;
+    const mn = document.getElementById('param-min').value; if (mn) body.min_value = parseFloat(mn);
+    const mx = document.getElementById('param-max').value; if (mx) body.max_value = parseFloat(mx);
+  } else {
+    body.enum_class_id = parseInt(document.getElementById('param-enum-class').value);
+  }
+  try {
+    await post('/api/params/definitions/', body);
+    toast('Параметр создан');
+    closeModal('modal-create-param');
+    loadParams();
+  } catch(e) { toast(e.message, 'error'); }
+}
+async function deleteParam(id) {
+  if (!confirm('Удалить параметр?')) return;
+  try { await del(`/api/params/definitions/${id}`); toast('Удалено'); loadParams(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+// Переменная для хранения текущего редактируемого параметра
+let currentEditParam = { productId: null, paramId: null, paramType: null };
+
+async function editParam(productId, paramId, paramType) {
+  currentEditParam = { productId, paramId, paramType };
+  // Получаем текущие параметры товара, чтобы подставить существующее значение
+  const productParams = await get(`/api/params/products/${productId}`);
+  const current = productParams.find(p => p.param_id === paramId);
+  // Получаем определение параметра (единицы измерения, список enum)
+  const paramDef = await get(`/api/params/definitions/${paramId}`);
+
+  const modalTitle = document.getElementById('param-modal-title');
+  modalTitle.textContent = `Установить ${paramDef.name}`;
+
+  const input = document.getElementById('param-value-input');
+  const select = document.getElementById('param-enum-select');
+  const label = document.getElementById('param-modal-label');
+
+  if (paramType === 'numeric') {
+    label.textContent = `Значение (${paramDef.unit || ''})`;
+    input.style.display = 'block';
+    select.style.display = 'none';
+    input.value = current?.numeric_value ?? '';
+  } else {
+    // enum
+    const enumValues = await get(`/api/enums/classes/${paramDef.enum_class_id}/values`);
+    select.innerHTML = enumValues.map(v => 
+      `<option value="${v.id}" ${current?.enum_value_id == v.id ? 'selected' : ''}>${v.value}</option>`
+    ).join('');
+    select.style.display = 'block';
+    input.style.display = 'none';
+    label.textContent = 'Выберите значение:';
+  }
+  openModal('modal-edit-param');
+}
+
+async function saveProductParam() {
+  const { productId, paramId, paramType } = currentEditParam;
+  try {
+    if (paramType === 'numeric') {
+      const value = parseFloat(document.getElementById('param-value-input').value);
+      if (isNaN(value)) throw new Error('Введите число');
+      await put(`/api/params/products/${productId}/numeric`, { param_id: paramId, value });
+    } else {
+      const enumValueId = parseInt(document.getElementById('param-enum-select').value);
+      if (isNaN(enumValueId)) throw new Error('Выберите значение');
+      await put(`/api/params/products/${productId}/enum`, { param_id: paramId, enum_value_id: enumValueId });
+    }
+    toast('Параметр сохранён');
+    closeModal('modal-edit-param');
+    // обновляем отображение товара (перезагружаем карточку)
+    if (state.currentProductId) {
+      selectProduct({ id: state.currentProductId });
+    }
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════ XO ══════════════════
+async function loadXOClassesForFilter() {
+  try {
+    const data = await get('/api/xo/classes/tree?parent_id=null').catch(() => null) || await get('/api/xo/classes/tree');
+    state.allXOClasses = data || [];
+    const sel = document.getElementById('xo-filter-class');
+    const xocSel = document.getElementById('xoc-parent');
+    const xoSel = document.getElementById('xo-class-sel');
+    const flatClasses = flattenXOClasses(state.allXOClasses);
+    sel.innerHTML = '<option value="">Все классы ХО</option>' + flatClasses.map(c => `<option value="${c.id}">${'  '.repeat(c.depth||0)}${c.name}</option>`).join('');
+    xocSel.innerHTML = '<option value="">— корневой —</option>' + flatClasses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    xoSel.innerHTML = flatClasses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  } catch(e) { console.error(e); }
+}
+function flattenXOClasses(nodes, depth = 0) {
+  let result = [];
+  (nodes || []).forEach(n => { result.push({...n, depth}); if (n.children) result = result.concat(flattenXOClasses(n.children, depth+1)); });
+  return result;
+}
+
+async function loadXOInstances() {
+  const div = document.getElementById('xo-table');
+  div.innerHTML = '<div style="color:var(--text-muted);font-size:12px">Загрузка…</div>';
+  try {
+    const classId = document.getElementById('xo-filter-class').value;
+    const status = document.getElementById('xo-filter-status').value;
+    let url = '/api/xo/instances/?limit=100';
+    if (classId) url += `&xo_class_id=${classId}`;
+    if (status) url += `&status=${status}`;
+    const data = await get(url);
+    if (!data || !data.length) { div.innerHTML = '<div class="empty"><p>Операций нет</p></div>'; return; }
+    div.innerHTML = `<table>
+      <thead><tr><th>Номер</th><th>Класс</th><th>Дата</th><th>Статус</th><th>Создал</th><th></th></tr></thead>
+      <tbody>${data.map(x => `
+        <tr>
+          <td><strong class="mono">${x.number || '#' + x.id}</strong></td>
+          <td>${x.xo_class_name || '—'}</td>
+          <td class="mono">${x.op_date}</td>
+          <td><span class="badge status-${x.status}">${statusLabel(x.status)}</span></td>
+          <td class="muted">${x.created_by || '—'}</td>
+          <td>
+            <button class="btn btn-ghost btn-sm" onclick="openXODetail(${x.id})">Открыть</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  } catch(e) { div.innerHTML = `<div style="color:var(--red)">${e.message}</div>`; }
+}
+function statusLabel(s) { return {draft:'Черновик',posted:'Проведён',cancelled:'Отменён'}[s] || s; }
+
+async function saveXOInstance() {
+  const classId = parseInt(document.getElementById('xo-class-sel').value);
+  const number = document.getElementById('xo-number').value.trim();
+  const op_date = document.getElementById('xo-date').value;
+  const notes = document.getElementById('xo-notes').value.trim();
+  const created_by = document.getElementById('xo-by').value.trim();
+  if (!classId || !op_date) return toast('Выберите класс и дату', 'error');
+  try {
+    await post('/api/xo/instances/', { xo_class_id: classId, number: number || null, op_date, notes: notes || null, created_by: created_by || null });
+    toast('Операция создана');
+    closeModal('modal-create-xo');
+    loadXOInstances();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+let currentXOData = null; // храним полные данные ХО для редактирования
+
+async function openXODetail(id) {
+  state.currentXOId = id;
+  // Получаем экземпляр и его полное представление
+  const [xo, fullRows] = await Promise.all([
+    get(`/api/xo/instances/${id}`),
+    get(`/api/xo/instances/${id}/full`)
+  ]);
+  currentXOData = { xo, fullRows };
+  document.getElementById('xo-detail-title').textContent = `Операция #${xo.number || id}`;
+  renderXOReadOnly(fullRows);
+  
+  const isDraft = xo.status === 'draft';
+  document.getElementById('xo-post-btn').style.display = isDraft ? '' : 'none';
+  document.getElementById('xo-cancel-btn').style.display = xo.status === 'posted' ? '' : 'none';
+  document.getElementById('xo-edit-params-btn').style.display = isDraft ? '' : 'none';
+  document.getElementById('xo-delete-btn').style.display = isDraft ? '' : 'none';
+  openModal('modal-xo-detail');
+}
+
+function renderXOReadOnly(rows) {
+  const sections = {};
+  rows.forEach(r => { if (!sections[r.field_type]) sections[r.field_type] = []; sections[r.field_type].push(r); });
+  let html = '<table style="margin-bottom:16px">';
+  ['header','role','param'].forEach(t => {
+    if (sections[t]) sections[t].forEach(r => {
+      html += `<tr><td style="color:var(--text-muted);width:160px;font-size:12px">${r.field_name}</td><td class="mono" style="font-size:13px">${r.field_value || '—'}</td></tr>`;
+    });
+  });
+  html += '</table>';
+  if (sections['line']) {
+    html += '<div style="font-size:12px;font-weight:500;margin:8px 0">Строки</div>';
+    html += '<table><thead><tr><th>Позиция</th><th>Кол-во</th><th>Цена</th></tr></thead><tbody>';
+    sections['line'].forEach(r => { html += `<tr><td>${r.field_name}</td><td colspan="2" class="mono">${r.field_value}</td></tr>`; });
+    html += '</tbody></table>';
+  }
+  document.getElementById('xo-detail-content').innerHTML = html;
+}
+
+function enableEditXO() {
+  // Загружаем отдельно данные для редактирования: параметры, роли, строки
+  Promise.all([
+    get(`/api/xo/instances/${state.currentXOId}/params`),
+    get(`/api/xo/instances/${state.currentXOId}/roles`),
+    get(`/api/xo/instances/${state.currentXOId}/lines`)
+  ]).then(([params, roles, lines]) => {
+    renderXOEdit(params, roles, lines);
+  }).catch(e => toast(e.message, 'error'));
+}
+
+async function postXO() {
+  try { 
+    await post(`/api/xo/instances/${state.currentXOId}/post`, {}); 
+    toast('Операция проведена'); 
+    closeModal('modal-xo-detail'); 
+    loadXOInstances(); 
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function cancelXO() {
+  const reason = prompt('Причина отмены (необязательно):');
+  try { 
+    await post(`/api/xo/instances/${state.currentXOId}/cancel`, { reason }); 
+    toast('Операция отменена'); 
+    closeModal('modal-xo-detail'); 
+    loadXOInstances(); 
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════ XO CLASSES ══════════════════
+let activeXOClassId = null;
+
+async function loadXOClassesTree() {
+  const div = document.getElementById('xo-classes-tree');
+  div.innerHTML = 'Загрузка…';
+  try {
+    const data = await get('/api/xo/classes/tree');
+    if (!data || !data.length) { div.innerHTML = '<div class="empty"><p>Классов нет</p></div>'; return; }
+    div.innerHTML = buildXOClassTree(data, 0, activeXOClassId);
+    // Обработчики кликов
+    document.querySelectorAll('.xo-class-item').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const classId = parseInt(el.dataset.id);
+        activeXOClassId = classId;
+        showXOClassDetail(classId);
+        loadXOClassesTree(); // перерисовываем дерево с выделением
+      });
+    });
+  } catch(e) { div.innerHTML = `<div style="color:var(--red)">${e.message}</div>`; }
+}
+
+function buildXOClassTree(nodes, depth, activeId = null) {
+  return (nodes || []).map(n => `
+    <div class="xo-class-item" data-id="${n.id}" style="padding:10px 12px;padding-left:${depth*24+12}px;border-bottom:1px solid var(--cream-200);display:flex;align-items:center;gap:10px;cursor:pointer;background:${activeId == n.id ? 'var(--green-50)' : 'transparent'}">
+      <span style="color:var(--text-muted);font-size:12px">${depth > 0 ? '└' : '◆'}</span>
+      <div style="flex:1">
+        <span style="font-weight:500">${n.name}</span>
+        ${n.description ? `<span class="muted" style="margin-left:8px">${n.description}</span>` : ''}
+      </div>
+      <span class="badge badge-gray">${n.instance_count} опер.</span>
+      <button class="btn-icon admin-only" onclick="event.stopPropagation(); deleteXOClass(${n.id})">🗑</button>
+    </div>
+    ${n.children ? buildXOClassTree(n.children, depth + 1, activeId) : ''}
+  `).join('');
+}
+
+async function saveXOClass() {
+  const name = document.getElementById('xoc-name').value.trim();
+  if (!name) return toast('Введите название', 'error');
+  const parent = document.getElementById('xoc-parent').value;
+  const desc = document.getElementById('xoc-desc').value.trim();
+  try {
+    await post('/api/xo/classes/', { name, description: desc || null, parent_id: parent ? parseInt(parent) : null });
+    toast('Класс создан');
+    closeModal('modal-create-xo-class');
+    loadXOClassesTree();
+    loadXOClassesForFilter();
+  } catch(e) { toast(e.message, 'error'); }
+}
+async function deleteXOClass(id) {
+  if (!confirm('Удалить класс ХО?')) return;
+  try { await del(`/api/xo/classes/${id}`); toast('Удалено'); loadXOClassesTree(); }
+  catch(e) { toast(e.message, 'error'); }
+}
+
+async function runTextSearch() {
+  const categoryId = document.getElementById('text-search-cat').value;
+  const query = document.getElementById('text-search-query').value.trim();
+  if (!categoryId || !query) {
+    toast('Выберите категорию и введите текст поиска', 'error');
+    return;
+  }
+  try {
+    const results = await get(`/api/params/search/text?category_id=${categoryId}&query=${encodeURIComponent(query)}`);
+    const container = document.getElementById('text-search-results');
+    if (!results || results.length === 0) {
+      container.innerHTML = '<div class="empty"><p>Ничего не найдено</p></div>';
+      return;
+    }
+    container.innerHTML = `
+      <table class="search-results-table">
+        <thead><tr><th>Изделие</th><th>Категория</th><th>Цена</th><th>Бренд</th></tr></thead>
+        <tbody>
+          ${results.map(r => `
+            <tr>
+              <td>${r.product_name}</td>
+              <td>${r.category_name}</td>
+              <td class="price">${Number(r.price).toFixed(2)} ₽</td>
+              <td class="muted">${r.brand || '—'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch(e) {
+    toast(e.message, 'error');
+  }
+}
+
+function clearTextSearch() {
+  document.getElementById('text-search-query').value = '';
+  document.getElementById('text-search-results').innerHTML = '';
+}
+
+async function showAssignParamModal(categoryId) {
+  try {
+    // Получаем список параметров, которые ещё не назначены категории
+    const available = await get(`/api/params/categories/${categoryId}/available-params`);
+    if (!available.length) {
+      toast('Нет доступных параметров для назначения', 'info');
+      return;
+    }
+    // Создаём временную модалку
+    const modalHtml = `
+      <div class="modal-overlay" id="assign-param-modal" style="display:flex">
+        <div class="modal">
+          <div class="modal-title">Назначить параметр категории</div>
+          <div class="form-group">
+            <label>Параметр</label>
+            <select id="assign-param-select">
+              ${available.map(p => `<option value="${p.id}">${p.name} (${p.param_type})</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="assign-inherit" checked> Наследовать подкатегориям
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="confirmAssignParam(${categoryId})">Назначить</button>
+            <button class="btn btn-ghost" onclick="closeAssignModal()">Отмена</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function closeAssignModal() {
+  const modal = document.getElementById('assign-param-modal');
+  if (modal) modal.remove();
+}
+
+async function confirmAssignParam(categoryId) {
+  const paramId = parseInt(document.getElementById('assign-param-select').value);
+  const isInherited = document.getElementById('assign-inherit').checked;
+  try {
+    await post(`/api/params/categories/${categoryId}`, { param_id: paramId, is_inherited: isInherited });
+    toast('Параметр назначен категории');
+    closeAssignModal();
+    await loadCategoryParamsTab(categoryId);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function removeParamFromCategory(categoryId, paramId) {
+  if (!confirm('Удалить параметр из категории? Это также удалит все его значения у товаров в этой категории.')) return;
+  try {
+    await del(`/api/params/categories/${categoryId}/${paramId}`);
+    toast('Параметр откреплён');
+    await loadCategoryParamsTab(categoryId);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function showXOClassDetail(classId) {
+  const container = document.getElementById('xo-class-detail');
+  container.innerHTML = '<div class="card">Загрузка...</div>';
+  try {
+    // 1. Получаем информацию о классе (название)
+    const xoClass = await get(`/api/xo/classes/${classId}`);
+    const className = xoClass.name;
+
+    // 2. Загружаем параметры и роли класса
+    const [params, roles] = await Promise.all([
+      get(`/api/xo/classes/${classId}/params`),
+      get(`/api/xo/classes/${classId}/roles`)
+    ]);
+
+    // 3. Список всех доступных параметров для назначения
+    const allParams = await get('/api/params/definitions/');
+    const assignedParamIds = params.map(p => p.param_def_id);
+    const freeParams = allParams.filter(p => !assignedParamIds.includes(p.id));
+
+    // 4. Формируем HTML
+    let html = `<div class="card"><div class="card-title">${className} – параметры и роли</div>`;
+
+    // ---- Блок назначения параметров ----
+    html += `<div style="margin-bottom:12px">
+      <select id="new-param-for-class-${classId}">
+        ${freeParams.map(p => `<option value="${p.id}">${p.name} (${p.param_type})</option>`).join('')}
+      </select>
+      <button class="btn btn-primary btn-sm admin-only" onclick="assignParamToXOClass(${classId})">Назначить</button>
+    </div>`;
+
+    // ---- Таблица параметров ----
+    html += `<table style="width:100%"><thead><tr><th>Параметр</th><th>Тип</th><th>Наследуется</th><th></th></tr></thead><tbody>`;
+    for (let p of params) {
+      html += `<tr>
+        <td>${p.param_name}</td>
+        <td><span class="badge ${p.param_type === 'numeric' ? 'badge-green' : 'badge-amber'}">${p.param_type}</span></td>
+        <td><label><input type="checkbox" class="xo-param-inherit" data-class="${classId}" data-param="${p.param_def_id}" ${p.is_inherited_xo ? 'checked' : ''}> наследуется</label></td>
+        <td><button class="btn-icon admin-only" onclick="removeParamFromXOClass(${classId}, ${p.param_def_id})">🗑</button></td>
+      </tr>`;
+    }
+    html += `</tbody></table></div>`;
+
+    // ---- Блок ролей ----
+    html += `<div class="card" style="margin-top:16px"><div class="card-title">Роли класса ХО</div>`;
+    html += `<div style="margin-bottom:12px">
+      <input type="text" id="new-role-name-${classId}" placeholder="Название роли">
+      <button class="btn btn-primary btn-sm admin-only" onclick="addRoleToXOClass(${classId})">+ Добавить роль</button>
+    </div>`;
+    html += `<table style="width:100%"><thead><tr><th>Роль</th><th>Обязательна</th><th>Тип субъекта</th><th></th></tr></thead><tbody>`;
+    for (let r of roles) {
+      html += `<tr>
+        <td>${r.name}</td>
+        <td>${r.is_required ? 'Да' : 'Нет'}</td>
+        <td>${r.subject_type || 'any'}</td>
+        <td><button class="btn-icon admin-only" onclick="deleteRoleFromXOClass(${r.id})">🗑</button></td>
+      </tr>`;
+    }
+    html += `</tbody></table></div>`;
+
+    container.innerHTML = html;
+
+    // 5. Обработчики чекбоксов наследования
+    document.querySelectorAll('.xo-param-inherit').forEach(cb => {
+      cb.addEventListener('change', async (e) => {
+        const clsId = parseInt(cb.dataset.class);
+        const paramId = parseInt(cb.dataset.param);
+        const isInherited = cb.checked;
+        try {
+          await patch(`/api/xo/classes/${clsId}/params/${paramId}`, { is_inherited: isInherited });
+          toast('Наследование обновлено');
+          showXOClassDetail(clsId);
+        } catch(e) {
+          toast(e.message, 'error');
+          cb.checked = !isInherited;
+        }
+      });
+    });
+  } catch(e) {
+    container.innerHTML = `<div class="empty">Ошибка: ${e.message}</div>`;
+  }
+}
+
+async function assignParamToXOClass(classId) {
+  const select = document.getElementById(`new-param-for-class-${classId}`);
+  const paramDefId = parseInt(select.value);
+  if (!paramDefId) return;
+  const isInherited = confirm('Наследовать подклассам?') ? true : false;
+  try {
+    await post(`/api/xo/classes/${classId}/params`, { param_def_id: paramDefId, is_inherited: isInherited });
+    toast('Параметр назначен классу');
+    showXOClassDetail(classId);
+  } catch(e) { toast(e.message, 'error'); }
+  toast('Параметр назначен классу');
+  showXOClassDetail(classId);
+  loadXOClassesTree();
+}
+
+async function removeParamFromXOClass(classId, paramDefId) {
+  if (!confirm('Снять параметр с класса? Значения у экземпляров не удаляются, но параметр перестанет быть доступным для новых.')) return;
+  try {
+    await del(`/api/xo/classes/${classId}/params/${paramDefId}`);
+    toast('Параметр снят');
+    showXOClassDetail(classId);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function addRoleToXOClass(classId) {
+  const name = document.getElementById(`new-role-name-${classId}`).value.trim();
+  if (!name) return toast('Введите название роли', 'error');
+  const isRequired = confirm('Обязательная роль?');
+  try {
+    await post(`/api/xo/classes/${classId}/roles`, { name, is_required: isRequired });
+    toast('Роль добавлена');
+    showXOClassDetail(classId);
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteRoleFromXOClass(roleDefId) {
+  if (!confirm('Удалить определение роли? Это также удалит назначения во всех экземплярах ХО.')) return;
+  try {
+    await del(`/api/xo/roles/${roleDefId}`);
+    toast('Роль удалена');
+    // Обновить детали текущего класса – нужно знать classId. Можно перезагрузить дерево и закрыть детали.
+    loadXOClassesTree();
+    document.getElementById('xo-class-detail').innerHTML = '';
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function renderXOEdit(params, roles, lines) {
+  let html = `<div style="margin-bottom:16px"><strong>Редактирование (только draft)</strong></div>`;
+  
+  // ---------- Параметры ----------
+  html += `<div class="card-title" style="font-size:14px">Параметры</div>`;
+  for (let p of params) {
+    if (p.param_type === 'numeric') {
+      html += `<div style="margin-bottom:8px">
+        <label>${p.param_name} (${p.unit || ''})</label>
+        <input type="number" step="any" id="param-${p.param_def_id}" value="${p.numeric_value ?? ''}" style="width:200px">
+        <button class="btn-icon" onclick="saveParamValue(${state.currentXOId}, ${p.param_def_id}, 'numeric')">💾</button>
+      </div>`;
+    } else if (p.param_type === 'enum') {
+      // загружаем возможные значения enum
+      const enumValues = await get(`/api/enums/classes/${p.enum_class_id}/values`);
+      html += `<div style="margin-bottom:8px">
+        <label>${p.param_name}</label>
+        <select id="param-${p.param_def_id}">
+          <option value="">— не выбрано —</option>
+          ${enumValues.map(ev => `<option value="${ev.id}" ${p.enum_value_id == ev.id ? 'selected' : ''}>${ev.value}</option>`).join('')}
+        </select>
+        <button class="btn-icon" onclick="saveParamValue(${state.currentXOId}, ${p.param_def_id}, 'enum')">💾</button>
+      </div>`;
+    } else {
+      // text
+      html += `<div style="margin-bottom:8px">
+        <label>${p.param_name}</label>
+        <textarea id="param-${p.param_def_id}" rows="2">${p.text_value ?? ''}</textarea>
+        <button class="btn-icon" onclick="saveParamValue(${state.currentXOId}, ${p.param_def_id}, 'text')">💾</button>
+      </div>`;
+    }
+  }
+  
+  // ---------- Роли ----------
+  html += `<div class="card-title" style="font-size:14px;margin-top:16px">Роли</div>`;
+  for (let r of roles) {
+    html += `<div style="margin-bottom:8px">
+      <label>${r.role_name} ${r.is_required ? '(обязательна)' : ''}</label>
+      <input type="text" id="role-${r.role_def_id}" value="${r.subject_name || ''}" placeholder="ФИО / организация" style="width:300px">
+      <button class="btn-icon" onclick="saveRoleAssign(${state.currentXOId}, ${r.role_def_id})">💾</button>
+    </div>`;
+  }
+  
+  // ---------- Строки табличной части ----------
+  html += `<div class="card-title" style="font-size:14px;margin-top:16px">Строки (товары)</div>`;
+  html += `<div id="xo-lines-list"></div>
+    <div style="margin-top:8px">
+      <button class="btn btn-sm btn-primary" onclick="addXOLineForm()">+ Добавить строку</button>
+    </div>`;
+  
+  document.getElementById('xo-detail-content').innerHTML = html;
+  
+  // Отображаем текущие строки
+  const linesDiv = document.getElementById('xo-lines-list');
+  linesDiv.innerHTML = '<div>Загрузка...</div>';
+  const linesData = await get(`/api/xo/instances/${state.currentXOId}/lines`);
+  renderLinesList(linesData);
+}
+
+function renderLinesList(lines) {
+  const container = document.getElementById('xo-lines-list');
+  if (!container) return;
+  if (!lines.length) {
+    container.innerHTML = '<div class="muted">Нет строк</div>';
+    return;
+  }
+  container.innerHTML = `<table style="width:100%">
+    <thead><tr><th>Товар</th><th>Кол-во</th><th>Цена</th><th>Ед.</th><th></th></tr></thead>
+    <tbody>
+      ${lines.map(l => `
+        <tr>
+          <td>${l.product_name || '—'}</td>
+          <td>${l.quantity}</td>
+          <td>${l.price ?? '—'}</td>
+          <td>${l.unit_name || ''}</td>
+          <td><button class="btn-icon" onclick="deleteXOLine(${l.line_id})">🗑</button></td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>`;
+}
+
+async function saveParamValue(xoId, paramDefId, type) {
+  const valueInput = document.getElementById(`param-${paramDefId}`);
+  let body = { param_def_id: paramDefId };
+  if (type === 'numeric') {
+    body.numeric_value = parseFloat(valueInput.value);
+    if (isNaN(body.numeric_value)) return toast('Введите число', 'error');
+  } else if (type === 'enum') {
+    body.enum_value_id = parseInt(valueInput.value);
+    if (isNaN(body.enum_value_id)) return toast('Выберите значение', 'error');
+  } else {
+    body.text_value = valueInput.value;
+  }
+  try {
+    await put(`/api/xo/instances/${xoId}/params`, body);
+    toast('Параметр сохранён');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function saveRoleAssign(xoId, roleDefId) {
+  const input = document.getElementById(`role-${roleDefId}`);
+  const subjectName = input.value.trim();
+  if (!subjectName) {
+    // Если пусто – удаляем назначение
+    await del(`/api/xo/instances/${xoId}/roles/${roleDefId}`);
+    toast('Роль снята');
+  } else {
+    await put(`/api/xo/instances/${xoId}/roles`, {
+      role_def_id: roleDefId,
+      subject_name: subjectName
+    });
+    toast('Роль назначена');
+  }
+}
+
+async function deleteXOLine(lineId) {
+  if (!confirm('Удалить строку?')) return;
+  try {
+    await del(`/api/xo/lines/${lineId}`);
+    toast('Строка удалена');
+    // обновить редактирование
+    enableEditXO();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function addXOLineForm() {
+  const container = document.getElementById('xo-lines-list');
+  const formHtml = `
+    <div id="new-line-form" style="margin-top:8px;padding:8px;border:1px solid var(--border);border-radius:6px">
+      <div class="form-grid">
+        <div class="form-group"><label>Товар (ID)</label><input type="number" id="new-line-product-id" placeholder="ID товара"></div>
+        <div class="form-group"><label>Кол-во</label><input type="number" step="any" id="new-line-quantity"></div>
+        <div class="form-group"><label>Цена</label><input type="number" step="any" id="new-line-price"></div>
+        <div class="form-group"><label>Ед. изм.</label><input id="new-line-unit" placeholder="шт, кг..."></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary btn-sm" onclick="saveNewXOLine()">Сохранить</button>
+        <button class="btn btn-ghost btn-sm" onclick="cancelAddLine()">Отмена</button>
+      </div>
+    </div>
+  `;
+  container.insertAdjacentHTML('beforeend', formHtml);
+}
+
+async function saveNewXOLine() {
+  const productId = parseInt(document.getElementById('new-line-product-id').value);
+  const quantity = parseFloat(document.getElementById('new-line-quantity').value);
+  const price = parseFloat(document.getElementById('new-line-price').value);
+  const unit = document.getElementById('new-line-unit').value.trim();
+  if (isNaN(quantity) || quantity <= 0) return toast('Количество должно быть > 0', 'error');
+  try {
+    await post(`/api/xo/instances/${state.currentXOId}/lines`, {
+      product_id: productId || null,
+      quantity,
+      price: isNaN(price) ? null : price,
+      unit_name: unit || null
+    });
+    toast('Строка добавлена');
+    cancelAddLine();
+    enableEditXO();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function cancelAddLine() {
+  const form = document.getElementById('new-line-form');
+  if (form) form.remove();
+}
+
+async function loadXOSearchFilters() {
+  const classes = await get('/api/xo/classes/tree');
+  const flat = flattenXOClasses(classes);
+  const classSelect = document.getElementById('search-xo-class');
+  classSelect.innerHTML = flat.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  
+  const params = await get('/api/params/definitions/');
+  const paramSelect = document.getElementById('search-xo-param');
+  paramSelect.innerHTML = params.map(p => `<option value="${p.id}">${p.name} (${p.param_type})</option>`).join('');
+}
+
+async function searchXOByParam() {
+  const xoClassId = document.getElementById('search-xo-class').value;
+  const paramDefId = document.getElementById('search-xo-param').value;
+  if (!xoClassId || !paramDefId) return toast('Выберите класс и параметр', 'error');
+  const numMin = document.getElementById('search-xo-min').value;
+  const numMax = document.getElementById('search-xo-max').value;
+  const enumVal = document.getElementById('search-xo-enum').value;
+  const status = document.getElementById('search-xo-status').value;
+  
+  let url = `/api/xo/search?xo_class_id=${xoClassId}&param_def_id=${paramDefId}`;
+  if (numMin) url += `&num_min=${numMin}`;
+  if (numMax) url += `&num_max=${numMax}`;
+  if (enumVal) url += `&enum_value_id=${enumVal}`;
+  if (status) url += `&status=${status}`;
+  
+  try {
+    const results = await get(url);
+    const container = document.getElementById('xo-search-results');
+    if (!results.length) {
+      container.innerHTML = '<div class="empty">Ничего не найдено</div>';
+      return;
+    }
+    container.innerHTML = `<table style="width:100%">
+      <thead><tr><th>№</th><th>Класс</th><th>Дата</th><th>Статус</th><th>Параметр</th><th>Значение</th></tr></thead>
+      <tbody>
+        ${results.map(r => `
+          <tr style="cursor:pointer" onclick="openXODetail(${r.xo_id})">
+            <td>${r.xo_number || '#'+r.xo_id}</td>
+            <td>${r.xo_class}</td>
+            <td>${r.op_date}</td>
+            <td><span class="badge status-${r.status}">${statusLabel(r.status)}</span></td>
+            <td>${r.param_name}</td>
+            <td>${r.param_value || '—'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function clearXOSearch() {
+  document.getElementById('search-xo-class').value = '';
+  document.getElementById('search-xo-param').value = '';
+  document.getElementById('search-xo-min').value = '';
+  document.getElementById('search-xo-max').value = '';
+  document.getElementById('search-xo-enum').value = '';
+  document.getElementById('search-xo-status').value = '';
+  document.getElementById('xo-search-results').innerHTML = '';
+}
+
+async function deleteXO() {
+  if (!confirm('Удалить операцию без возможности восстановления?')) return;
+  try {
+    await del(`/api/xo/instances/${state.currentXOId}`);
+    toast('Операция удалена');
+    closeModal('modal-xo-detail');
+    loadXOInstances();  // обновить список
+  } catch(e) {
+    toast(e.message, 'error');
+  }
+}
+
+function getAuthHeaders() {
+    const token = localStorage.getItem('auth_token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
+async function api(path, opts = {}) {
+    const headers = {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+        ...(opts.headers || {})
+    };
+    const res = await fetch(API + path, { ...opts, headers });
+    if (res.status === 401) {
+        // Неавторизован – очищаем токен и перезагружаем
+        localStorage.removeItem('auth_token');
+        alert('Сессия истекла. Войдите заново.');
+        window.location.reload();
+        throw new Error('Unauthorized');
+    }
+    if (!res.ok) {
+        const e = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(e.detail || 'Ошибка');
+    }
+    if (res.status === 204) return null;
+    return res.json();
+}
+
+// Shorthand helpers (must come AFTER api() is defined)
+const get    = (path)       => api(path);
+const post   = (path, body) => api(path, { method: 'POST',   body: JSON.stringify(body) });
+const put    = (path, body) => api(path, { method: 'PUT',    body: JSON.stringify(body) });
+const patch  = (path, body) => api(path, { method: 'PATCH',  body: JSON.stringify(body) });
+const del    = (path)       => api(path, { method: 'DELETE' });
+
+async function showLoginModal() {
+    openModal('modal-login');
+}
+
+async function login() {
+    const username = document.getElementById('login-username')
+        ? document.getElementById('login-username').value.trim()
+        : '';
+    const password = document.getElementById('login-password')
+        ? document.getElementById('login-password').value
+        : document.getElementById('login-token')?.value.trim() || '';
+    if (!username || !password) return toast('Введите логин и пароль', 'error');
+    try {
+        const res = await fetch(API + '/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        if (!res.ok) {
+            const e = await res.json().catch(() => ({}));
+            throw new Error(e.detail || 'Неверные учётные данные');
+        }
+        const data = await res.json();
+        localStorage.setItem('auth_token', data.access_token);
+        localStorage.setItem('user_role', data.role);
+        toast(`Вход выполнен как ${data.role}`, 'success');
+        closeModal('modal-login');
+        updateUIByRole(data.role);
+        const activePanel = document.querySelector('.panel.active')?.id.replace('panel-', '');
+        if (activePanel === 'catalog') loadTree();
+        if (activePanel === 'xo') loadXOInstances();
+        if (activePanel === 'xo-classes') loadXOClassesTree();
+        if (activePanel === 'dashboard') loadDashboard();
+    } catch(e) {
+        localStorage.removeItem('auth_token');
+        toast('Ошибка: ' + (e.message || 'Неверные данные'), 'error');
+    }
+}
+
+function logout() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_role');
+    toast('Выход выполнен');
+    updateUIByRole(null);
+    window.location.reload(); // или перезагрузить данные
+}
+
+function updateUIByRole(role) {
+    const isAdmin = role === 'admin';
+    const isLoggedIn = role !== null;
+    
+    document.getElementById('login-btn').style.display = role ? 'none' : '';
+    document.getElementById('logout-btn').style.display = role ? '' : 'none';
+    
+    // Показать/скрыть разделы, требующие авторизации
+    const navClassifiers = document.getElementById('nav-classifiers');
+    const navOperations = document.getElementById('nav-operations');
+    if (navClassifiers) navClassifiers.style.display = isLoggedIn ? '' : 'none';
+    if (navOperations) navOperations.style.display = isLoggedIn ? '' : 'none';
+
+    
+    document.body.classList.toggle('admin-mode', isAdmin);
+    document.body.classList.toggle('user-mode', !isAdmin && role === 'user');
+
+    const navAnalytics = document.getElementById('nav-analytics');
+    const navAdmin = document.getElementById('nav-admin');
+    const navAlways = document.getElementById('nav-always');
+    if (navAnalytics) navAnalytics.style.display = isLoggedIn ? '' : 'none';
+    if (navAdmin) navAdmin.style.display = isAdmin ? '' : 'none';
+    if (navAlways) navAlways.style.display = isLoggedIn ? '' : 'none';
+}
+
+
+
+
+// ══════════════════ DASHBOARD ══════════════════
+async function loadDashboard() {
+  try {
+    const s = await get('/api/dashboard/stats');
+    document.getElementById('dash-categories').textContent = s.categories;
+    document.getElementById('dash-products').textContent = s.products;
+    document.getElementById('dash-params').textContent = s.params;
+    document.getElementById('dash-xo').textContent = s.xo_instances;
+  } catch(e) {
+    toast('Ошибка загрузки дашборда: ' + e.message, 'error');
+  }
+}
+
+// ══════════════════ ANALYTICS ══════════════════
+let _charts = {};
+function _destroyChart(id) { if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; } }
+
+async function loadAnalytics() {
+  try {
+    const d = await get('/api/analytics');
+    const GREEN = ['#3a7a50','#4a9663','#2e6040','#234d33','#a8d5b5','#1a3d28','#d4ead9'];
+
+    _destroyChart('dist');
+    _charts['dist'] = new Chart(document.getElementById('chart-dist'), {
+      type: 'bar',
+      data: {
+        labels: d.category_distribution.map(r => r.category_name),
+        datasets: [{ label: 'Товаров', data: d.category_distribution.map(r => r.product_count),
+          backgroundColor: GREEN[0], borderRadius: 4 }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    _destroyChart('price');
+    _charts['price'] = new Chart(document.getElementById('chart-price'), {
+      type: 'bar',
+      data: {
+        labels: d.category_avg_price.map(r => r.category_name),
+        datasets: [{ label: 'Средняя цена', data: d.category_avg_price.map(r => r.avg_price),
+          backgroundColor: GREEN[1], borderRadius: 4 }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    _destroyChart('params');
+    _charts['params'] = new Chart(document.getElementById('chart-params'), {
+      type: 'horizontalBar' in Chart ? 'horizontalBar' : 'bar',
+      data: {
+        labels: d.param_usage.map(r => r.param_name),
+        datasets: [{ label: 'Использований', data: d.param_usage.map(r => r.usage_count),
+          backgroundColor: GREEN[2], borderRadius: 4 }]
+      },
+      options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    _destroyChart('xo');
+    _charts['xo'] = new Chart(document.getElementById('chart-xo'), {
+      type: 'line',
+      data: {
+        labels: d.xo_monthly.map(r => r.month),
+        datasets: [{ label: 'Операций', data: d.xo_monthly.map(r => r.count),
+          borderColor: GREEN[0], backgroundColor: GREEN[4] + '66', fill: true, tension: 0.3 }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  } catch(e) {
+    toast('Ошибка загрузки аналитики: ' + e.message, 'error');
+  }
+}
+
+// ══════════════════ USERS ══════════════════
+async function loadUsers() {
+  try {
+    const users = await get('/api/users/');
+    const tbody = document.getElementById('users-body');
+    tbody.innerHTML = '';
+    users.forEach(u => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${u.id}</td>
+        <td>${u.username}</td>
+        <td><span class="badge badge-${u.role === 'admin' ? 'amber' : 'green'}">${u.role}</span></td>
+        <td>${u.is_active ? '✓' : '✗'}</td>
+        <td>${u.created_at ? u.created_at.slice(0,10) : '—'}</td>
+        <td>
+		  <button class="btn-icon" onclick="openEditUser(${u.id}, '${escapeHtml(u.username)}', '${u.role}')">✏️</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleUserActive(${u.id}, ${u.is_active})">${u.is_active ? 'Блок.' : 'Разблок.'}</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="deleteUser(${u.id})">Удалить</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  } catch(e) {
+    toast('Ошибка загрузки пользователей: ' + e.message, 'error');
+  }
+}
+
+async function saveUser() {
+  const id = document.getElementById('user-edit-id').value;
+  const username = document.getElementById('user-username').value.trim();
+  const password = document.getElementById('user-password').value;
+  const role = document.getElementById('user-role').value;
+  try {
+    if (id) {
+      await patch('/api/users/' + id, { password: password || undefined, role });
+    } else {
+      await post('/api/users/', { username, password, role });
+    }
+    toast('Сохранено');
+    closeModal('modal-create-user');
+    loadUsers();
+    document.getElementById('user-edit-id').value = '';
+    document.getElementById('user-username').readOnly = false;
+    document.getElementById('user-username').value = '';
+    document.getElementById('user-password').value = '';
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function openEditUser(id, username, role) {
+  document.getElementById('user-modal-title').textContent = 'Редактировать пользователя';
+  document.getElementById('user-edit-id').value = id;
+  document.getElementById('user-username').value = username;
+  document.getElementById('user-username').readOnly = true; 
+  document.getElementById('user-password').value = '';
+  document.getElementById('user-role').value = role;
+  openModal('modal-create-user');
+}
+
+function openCreateUserModal() {
+  document.getElementById('user-modal-title').textContent = 'Создать пользователя';
+  document.getElementById('user-edit-id').value = '';
+  document.getElementById('user-username').value = '';
+  document.getElementById('user-username').readOnly = false;
+  document.getElementById('user-password').value = '';
+  document.getElementById('user-role').value = 'user';
+  openModal('modal-create-user');
+}
+
+async function toggleUserActive(id, current) {
+  try {
+    await patch('/api/users/' + id, { is_active: !current });
+    toast('Статус обновлён');
+    loadUsers();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteUser(id) {
+  if (!confirm('Удалить пользователя?')) return;
+  try {
+    await del('/api/users/' + id);
+    toast('Удалён');
+    loadUsers();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════ AUDIT LOG ══════════════════
+async function loadAuditLog() {
+  const entity = document.getElementById('audit-entity-filter')?.value || '';
+  const action = document.getElementById('audit-action-filter')?.value || '';
+  let path = '/api/audit/?limit=100';
+  if (entity) path += '&entity_type=' + entity;
+  if (action) path += '&action=' + action;
+  try {
+    const rows = await get(path);
+    const tbody = document.getElementById('audit-body');
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="mono" style="font-size:11px">${r.timestamp ? r.timestamp.replace('T',' ').slice(0,19) : ''}</td>
+        <td>${r.user_login || '—'}</td>
+        <td><span class="badge badge-${r.action === 'delete' || r.action === 'cancel' ? 'red' : 'green'}">${r.action}</span></td>
+        <td>${r.entity_type}</td>
+        <td>${r.entity_id || '—'}</td>
+        <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.details || ''}</td>`;
+      tbody.appendChild(tr);
+    });
+    if (!rows.length) tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-muted);text-align:center;padding:20px">Записей нет</td></tr>';
+  } catch(e) { toast('Ошибка аудита: ' + e.message, 'error'); }
+}
+
+// ══════════════════ CSV EXPORT ══════════════════
+function exportProductsCSV(categoryId) {
+  const token = localStorage.getItem('auth_token');
+  const url = API + '/api/export/products' + (categoryId ? '?category_id=' + categoryId : '');
+  const a = document.createElement('a');
+  a.href = url;
+  // We need auth header — open via fetch and create blob
+  fetch(url, { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(r => r.blob())
+    .then(blob => {
+      a.href = URL.createObjectURL(blob);
+      a.download = 'products.csv';
+      a.click();
+    });
+}
+
+function exportXOCSV() {
+  const token = localStorage.getItem('auth_token');
+  fetch(API + '/api/export/xo-instances', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(r => r.blob())
+    .then(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'xo_instances.csv';
+      a.click();
+    });
+}
+
+// ── INIT (единая инициализация) ──
+(async function init() {
+    // 1. Проверка аутентификации
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+        try {
+            const me = await get('/api/me');
+            updateUIByRole(me.role);
+        } catch(e) {
+            localStorage.removeItem('auth_token');
+            updateUIByRole(null);
+        }
+    } else {
+        updateUIByRole(null);
+    }
+    
+    // 2. Инициализация остальных данных (после аутентификации)
+    const today = new Date().toISOString().slice(0, 10);
+    document.getElementById('xo-date').value = today;
+    try { 
+        state.allEnumClasses = await get('/api/enums/classes'); 
+    } catch(e) {}
+    await loadTree();
+})();
+</script>
+
+</body>
+</html>

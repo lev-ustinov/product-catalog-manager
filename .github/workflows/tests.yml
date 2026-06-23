@@ -1,0 +1,61 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: appuser
+          POSTGRES_PASSWORD: securepassword
+          POSTGRES_DB: product_catalog
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U appuser -d product_catalog"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      SECRET_KEY: ci-test-secret-key
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: admin123
+      TEST_DATABASE_URL: postgresql://appuser:securepassword@localhost:5432/product_catalog
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Apply database schema (init.sql)
+        run: |
+          PGPASSWORD=securepassword psql -h localhost -U appuser -d product_catalog -f init.sql
+
+      - name: Apply Alembic migrations
+        run: |
+          cd app
+          DATABASE_URL=$TEST_DATABASE_URL alembic -c ../alembic.ini upgrade head
+
+      - name: Run test suite (unit + integration)
+        run: |
+          pytest -v
+
+      - name: Smoke-test demo seed script
+        run: |
+          cd app
+          DATABASE_URL=$TEST_DATABASE_URL python seed_demo_data.py

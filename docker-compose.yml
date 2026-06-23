@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: product_catalog
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-securepassword}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d product_catalog"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://appuser:${DB_PASSWORD:-securepassword}@db:5432/product_catalog
+    healthcheck:
+      # Calls the silent /health endpoint — not logged by uvicorn
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" 2>/dev/null"]
+      interval: 30s      # check every 30s — enough for monitoring, no log flood
+      timeout: 5s
+      retries: 3
+      start_period: 20s  # give entrypoint.sh time to run alembic + seed
+    restart: on-failure
+
+volumes:
+  pgdata:
