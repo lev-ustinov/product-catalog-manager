@@ -89,7 +89,7 @@ fallback на `ADMIN_USERNAME` / `ADMIN_PASSWORD` из `.env`, поэтому в
 ## Быстрый старт — Docker (рекомендуется)
 
 ```bash
-git clone https://github.com/ваш-логин/product-catalog-manager.git
+git clone https://github.com/lev-ustinov/product-catalog-manager.git
 cd product-catalog-manager
 cp .env.example .env
 docker-compose up --build
@@ -130,7 +130,7 @@ Python-окружении.
 ### 1 · Клонирование
 
 ```bash
-git clone https://github.com/ваш-логин/product-catalog-manager.git
+git clone https://github.com/lev-ustinov/product-catalog-manager.git
 cd product-catalog-manager
 ```
 
