@@ -87,7 +87,7 @@ can be accessed before any migration is run.
 ## Quick Start — Docker (recommended)
 
 ```bash
-git clone https://github.com/lev-ustinov /product-catalog-manager.git
+git clone https://github.com/lev-ustinov/product-catalog-manager.git
 cd product-catalog-manager
 cp .env.example .env
 docker-compose up --build
@@ -127,7 +127,7 @@ your own Python environment.
 ### 1 · Clone
 
 ```bash
-git clone https://github.com/lev-ustinov /product-catalog-manager.git
+git clone https://github.com/lev-ustinov/product-catalog-manager.git
 cd product-catalog-manager
 ```
 
